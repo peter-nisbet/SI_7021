@@ -4,6 +4,7 @@
 /****I2C Slave Address****/
 #include <FreeRTOS.h>
 #include <fsl_i2c_freertos.h>
+#include <fsl_debug_console.h>
 
 #define ADDRESS		0x40
 
@@ -21,6 +22,10 @@
 
 #define HTRE 0x02
 #define _BV(bit) (1<<(bit))
+
+/****I2C Definitions****/
+
+#define I2C_DATA_LENGTH (32)
 
 /****Function Prototypes****/
 
@@ -41,8 +46,10 @@ uint8_t readReg();
 
 /***Global Definitions***/
 
-//i2c_rtos_handle_t sensor_rtos_handle; might not be needed as global variable
-i2c_master_handle_t g_sen_handle;
+i2c_rtos_handle_t sensor_rtos_handle; //might not be needed as global variable
+i2c_master_handle_t *g_sen_handle;
 i2c_master_config_t	sensorConfig;
 i2c_master_transfer_t sensorXfer;
+
+uint8_t g_sen_buff[I2C_DATA_LENGTH];
 

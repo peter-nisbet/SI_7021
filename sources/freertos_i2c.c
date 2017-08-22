@@ -50,6 +50,10 @@
 
 #include "pin_mux.h"
 #include "clock_config.h"
+
+/****Peter's Sample Library Includes****/
+#include <SI7021.h>
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -91,7 +95,7 @@
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-
+void init_I2C(void);
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -475,3 +479,20 @@ static void master_task(void *pvParameters)
     vTaskSuspend(NULL);
 }
 #endif //((I2C_MASTER_SLAVE == isMaster) || (EXAMPLE_CONNECT_I2C == SINGLE_BOARD))
+
+void init_I2C(void)
+{
+    uint32_t sourceClock;
+    status_t status;
+
+    I2C_MasterGetDefaultConfig(&sensorConfig);
+    sensorConfig.baudRate_Bps = I2C_BAUDRATE;
+    sourceClock = EXAMPLE_I2C_MASTER_CLK_FREQ;
+
+    status = I2C_RTOS_Init(&sensor_rtos_handle, EXAMPLE_I2C_MASTER, &sensorConfig, sourceClock);
+    if (status != kStatus_Success)
+    {
+        PRINTF("I2C master: error during init, %d", status);
+    }
+    g_sen_handle = &sensor_rtos_handle.drv_handle;
+}
