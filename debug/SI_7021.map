@@ -14,6 +14,12 @@ c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm
                               c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu/crt0.o (memset)
 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libg_s.a(lib_a-strlen.o)
                               ./utilities/fsl_debug_console.o (strlen)
+c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_addsubdf3.o)
+                              ./sources/SI7021.o (__aeabi_dsub)
+c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_muldivdf3.o)
+                              ./sources/SI7021.o (__aeabi_dmul)
+c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_truncdfsf2.o)
+                              ./sources/SI7021.o (__aeabi_d2f)
 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libnosys.a(_exit.o)
                               c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libg_s.a(lib_a-exit.o) (_exit)
 
@@ -58,6 +64,42 @@ Discarded input sections
  .ARM.attributes
                 0x00000000       0x39 ./utilities/fsl_sbrk.o
  .debug_frame   0x00000000       0x30 ./utilities/fsl_sbrk.o
+ .text          0x00000000        0x0 ./sources/SI7021.o
+ .data          0x00000000        0x0 ./sources/SI7021.o
+ .bss           0x00000000        0x0 ./sources/SI7021.o
+ .bss.sensor_rtos_handle
+                0x00000000       0x38 ./sources/SI7021.o
+ .bss.sensorConfig
+                0x00000000        0xc ./sources/SI7021.o
+ .bss.sensorXfer
+                0x00000000       0x18 ./sources/SI7021.o
+ .text.getRH    0x00000000       0x7c ./sources/SI7021.o
+ .text.readTemp
+                0x00000000       0x88 ./sources/SI7021.o
+ .text.getTemp  0x00000000       0x88 ./sources/SI7021.o
+ .text.heaterOn
+                0x00000000       0x24 ./sources/SI7021.o
+ .text.heaterOff
+                0x00000000       0x24 ./sources/SI7021.o
+ .text.changeResolution
+                0x00000000       0x58 ./sources/SI7021.o
+ .text.reset    0x00000000        0xc ./sources/SI7021.o
+ .text.makeMeasurement
+                0x00000000       0x34 ./sources/SI7021.o
+ .text.writeReg
+                0x00000000       0x14 ./sources/SI7021.o
+ .text.readReg  0x00000000       0x14 ./sources/SI7021.o
+ .debug_info    0x00000000      0x6ea ./sources/SI7021.o
+ .debug_abbrev  0x00000000      0x1d5 ./sources/SI7021.o
+ .debug_aranges
+                0x00000000       0x68 ./sources/SI7021.o
+ .debug_ranges  0x00000000       0x58 ./sources/SI7021.o
+ .debug_line    0x00000000      0x267 ./sources/SI7021.o
+ .debug_str     0x00000000      0x9cc ./sources/SI7021.o
+ .comment       0x00000000       0x71 ./sources/SI7021.o
+ .ARM.attributes
+                0x00000000       0x39 ./sources/SI7021.o
+ .debug_frame   0x00000000      0x140 ./sources/SI7021.o
  .text          0x00000000        0x0 ./sources/board.o
  .data          0x00000000        0x0 ./sources/board.o
  .bss           0x00000000        0x0 ./sources/board.o
@@ -795,6 +837,21 @@ Discarded input sections
  .text          0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libg_s.a(lib_a-strlen.o)
  .data          0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libg_s.a(lib_a-strlen.o)
  .bss           0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libg_s.a(lib_a-strlen.o)
+ .text          0x00000000      0x370 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_addsubdf3.o)
+ .data          0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_addsubdf3.o)
+ .bss           0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_addsubdf3.o)
+ .ARM.attributes
+                0x00000000       0x22 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_addsubdf3.o)
+ .text          0x00000000      0x424 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_muldivdf3.o)
+ .data          0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_muldivdf3.o)
+ .bss           0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_muldivdf3.o)
+ .ARM.attributes
+                0x00000000       0x22 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_muldivdf3.o)
+ .text          0x00000000       0xa0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_truncdfsf2.o)
+ .data          0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_truncdfsf2.o)
+ .bss           0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_truncdfsf2.o)
+ .ARM.attributes
+                0x00000000       0x22 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/armv7e-m/fpu\libgcc.a(_arm_truncdfsf2.o)
  .text          0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libnosys.a(_exit.o)
  .data          0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libnosys.a(_exit.o)
  .bss           0x00000000        0x0 c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../../arm-none-eabi/lib/armv7e-m/fpu\libnosys.a(_exit.o)
@@ -824,6 +881,7 @@ LOAD c:/freescale/kds_v3/toolchain/bin/../lib/gcc/arm-none-eabi/4.8.4/../../../.
 START GROUP
 LOAD ./utilities/fsl_debug_console.o
 LOAD ./utilities/fsl_sbrk.o
+LOAD ./sources/SI7021.o
 LOAD ./sources/board.o
 LOAD ./sources/clock_config.o
 LOAD ./sources/freertos_i2c.o

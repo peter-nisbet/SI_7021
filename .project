@@ -30,6 +30,18 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>sources/SI7021.c</name>
+			<type>1</type>
+			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/sources/SI7021.c</location>
+		</link>
+		<link>
+			<name>sources/SI7021.h</name>
+			<type>1</type>
+			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/sources/SI7021.h</location>
+		</link>
+	</linkedResources>
 	<variableList>
 		<variable>
 			<name>copy_PARENT</name>
