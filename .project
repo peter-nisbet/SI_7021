@@ -32,6 +32,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>drivers/fsl_ftm.c</name>
+			<type>1</type>
+			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_ftm.c</location>
+		</link>
+		<link>
+			<name>drivers/fsl_ftm.h</name>
+			<type>1</type>
+			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_ftm.h</location>
+		</link>
+		<link>
 			<name>sources/SI7021.c</name>
 			<type>1</type>
 			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/sources/SI7021.c</location>

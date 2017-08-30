@@ -77,6 +77,7 @@ BOARD_InitPins:
  *
  *END**************************************************************************/
 void BOARD_InitPins(void) {
+  CLOCK_EnableClock(kCLOCK_PortA);                           /* Port B Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortB);                           /* Port B Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortC);                           /* Port C Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortE);                           /* Port E Clock Gate Control: Clock enabled */
@@ -121,6 +122,8 @@ void BOARD_InitPins(void) {
     kPORT_UnlockRegister                                     /* Pin Control Register fields [15:0] are not locked */
   };
   PORT_SetPinConfig(PORTC, PIN11_IDX, &portc11_pin56_config); /* PORTC11 (pin 56) is configured as I2C1_SDA */
+  //***Added by Peter***//
+  PORT_SetPinMux(PORTA, PIN2_IDX, kPORT_MuxAlt3);            /* PORTA2 (pin 24) is configured as FTM0_CH7 */
   PORT_SetPinMux(PORTE, PIN0_IDX, kPORT_MuxAlt3);            /* PORTE0 (pin 1) is configured as UART1_TX */
   PORT_SetPinMux(PORTE, PIN1_IDX, kPORT_MuxAlt3);            /* PORTE1 (pin 2) is configured as UART1_RX */
   SIM->SOPT5 = ((SIM->SOPT5 &

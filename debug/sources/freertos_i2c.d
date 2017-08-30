@@ -18,7 +18,8 @@ sources/freertos_i2c.o: ../sources/freertos_i2c.c \
  ../drivers/fsl_common.h ../drivers/fsl_gpio.h \
  ../utilities/fsl_debug_console.h ../drivers/fsl_i2c.h \
  ../drivers/fsl_i2c_freertos.h ../freertos/Source/include/portable.h \
- ../drivers/fsl_i2c.h ../sources/pin_mux.h ../sources/SI7021.h
+ ../drivers/fsl_i2c.h ../drivers/fsl_ftm.h ../sources/pin_mux.h \
+ ../sources/SI7021.h
 
 ../freertos/Source/include/FreeRTOS.h:
 
@@ -87,6 +88,8 @@ sources/freertos_i2c.o: ../sources/freertos_i2c.c \
 ../freertos/Source/include/portable.h:
 
 ../drivers/fsl_i2c.h:
+
+../drivers/fsl_ftm.h:
 
 ../sources/pin_mux.h:
 
