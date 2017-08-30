@@ -113,6 +113,8 @@ SemaphoreHandle_t i2c_sem;
 /* Task priorities. */
 #define slave_task_PRIORITY (configMAX_PRIORITIES - 1)
 #define master_task_PRIORITY (configMAX_PRIORITIES - 2)
+//***Added by Peter***//
+#define SI7021_task_PRIORITY (configMAX_PRIORITIES - 1)
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -121,6 +123,10 @@ static void slave_task(void *pvParameters);
 #if ((I2C_MASTER_SLAVE == isMaster) || (EXAMPLE_CONNECT_I2C == SINGLE_BOARD))
 static void master_task(void *pvParameters);
 #endif
+
+//***Added by Peter***//
+static void SI_7021(void *pvParameters);
+void read_hum(void);
 
 /*******************************************************************************
  * Code
@@ -146,9 +152,15 @@ int main(void)
     PRINTF("This example use two boards to connect with one as master and another as slave.\r\n");
 #endif
 
-    if (xTaskCreate(slave_task, "Slave_task", configMINIMAL_STACK_SIZE + 60, NULL, slave_task_PRIORITY, NULL) != pdPASS)
+    /*if (xTaskCreate(slave_task, "Slave_task", configMINIMAL_STACK_SIZE + 60, NULL, slave_task_PRIORITY, NULL) != pdPASS)
     {
         PRINTF("Failed to create slave task");
+    }*/
+
+    //***Added by Peter***//
+    if (xTaskCreate(SI_7021, "SI7021_task", configMINIMAL_STACK_SIZE + 60, NULL, SI7021_task_PRIORITY, NULL) != pdPASS)
+    {
+        PRINTF("Failed to create SI7021 task");
     }
 
     vTaskStartScheduler();
@@ -480,10 +492,23 @@ static void master_task(void *pvParameters)
 }
 #endif //((I2C_MASTER_SLAVE == isMaster) || (EXAMPLE_CONNECT_I2C == SINGLE_BOARD))
 
+//***I2C Init function***//
 void init_I2C(void)
 {
     uint32_t sourceClock;
     status_t status;
+
+    callback_message_t cb_msg = {0};
+
+    cb_msg.sem = xSemaphoreCreateBinary();
+    if (cb_msg.sem == NULL)
+    {
+        PRINTF("I2C slave: Error creating semaphore\r\n");
+        vTaskSuspend(NULL);
+    }
+    i2c_sem = cb_msg.sem;
+
+    NVIC_SetPriority(EXAMPLE_I2C_MASTER_IRQN, I2C_NVIC_PRIO + 1);
 
     I2C_MasterGetDefaultConfig(&sensorConfig);
     sensorConfig.baudRate_Bps = I2C_BAUDRATE;
@@ -495,4 +520,34 @@ void init_I2C(void)
         PRINTF("I2C master: error during init, %d", status);
     }
     g_sen_handle = &sensor_rtos_handle.drv_handle;
+}
+
+//***Function to get humidity***//
+
+void read_hum(void)
+{
+	float humidity_val = getRH();
+	PRINTF("Value of Room humidity is: %4.1f%%\r\n", humidity_val);
+}
+
+void read_temp(void)
+{
+	float temp_val = getTemp();
+	PRINTF("Value of Room Temperature is: %4.1fC\r\n", temp_val);
+}
+
+//***Task for SI7021***//
+static void SI_7021(void *pvParameters)
+{
+	init_I2C();
+	//si7021_init();
+
+	while(1)
+	{
+		read_hum();
+		read_temp();
+		vTaskDelay(10000);
+	}
+
+	vTaskSuspend(NULL);
 }

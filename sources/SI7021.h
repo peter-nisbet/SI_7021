@@ -29,6 +29,8 @@
 
 /****Function Prototypes****/
 
+void si7021_init(void);
+
 float getRH();
 float readTemp();
 float getTemp();

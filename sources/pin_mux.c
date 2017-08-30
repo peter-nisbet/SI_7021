@@ -51,6 +51,7 @@ PinsProfile:
 #define PIN11_IDX                       11u   /*!< Pin number for pin 11 in a port */
 #define SOPT5_UART1TXSRC_UART_TX      0x00u   /*!< UART 1 transmit data source select: UART1_TX pin */
 
+
 /*
  * TEXT BELOW IS USED AS SETTING FOR THE PINS TOOL *****************************
 BOARD_InitPins:
@@ -80,7 +81,7 @@ void BOARD_InitPins(void) {
   CLOCK_EnableClock(kCLOCK_PortC);                           /* Port C Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortE);                           /* Port E Clock Gate Control: Clock enabled */
 
-  const port_pin_config_t portb2_pin37_config = {
+  const port_pin_config_t portb0_pin35_config = {
     kPORT_PullUp,                                            /* Internal pull-up resistor is enabled */
     kPORT_FastSlewRate,                                      /* Fast slew rate is configured */
     kPORT_PassiveFilterDisable,                              /* Passive filter is disabled */
@@ -89,8 +90,8 @@ void BOARD_InitPins(void) {
     kPORT_MuxAlt2,                                           /* Pin is configured as I2C0_SCL */
     kPORT_UnlockRegister                                     /* Pin Control Register fields [15:0] are not locked */
   };
-  PORT_SetPinConfig(PORTB, PIN2_IDX, &portb2_pin37_config);  /* PORTB2 (pin 37) is configured as I2C0_SCL */
-  const port_pin_config_t portb3_pin38_config = {
+  PORT_SetPinConfig(PORTB, PIN0_IDX, &portb0_pin35_config);  /* PORTB2 (pin 37) is configured as I2C0_SCL */
+  const port_pin_config_t portb1_pin36_config = {
     kPORT_PullUp,                                            /* Internal pull-up resistor is enabled */
     kPORT_FastSlewRate,                                      /* Fast slew rate is configured */
     kPORT_PassiveFilterDisable,                              /* Passive filter is disabled */
@@ -99,7 +100,7 @@ void BOARD_InitPins(void) {
     kPORT_MuxAlt2,                                           /* Pin is configured as I2C0_SDA */
     kPORT_UnlockRegister                                     /* Pin Control Register fields [15:0] are not locked */
   };
-  PORT_SetPinConfig(PORTB, PIN3_IDX, &portb3_pin38_config);  /* PORTB3 (pin 38) is configured as I2C0_SDA */
+  PORT_SetPinConfig(PORTB, PIN1_IDX, &portb1_pin36_config);  /* PORTB3 (pin 38) is configured as I2C0_SDA */
   const port_pin_config_t portc10_pin55_config = {
     kPORT_PullUp,                                            /* Internal pull-up resistor is enabled */
     kPORT_FastSlewRate,                                      /* Fast slew rate is configured */
