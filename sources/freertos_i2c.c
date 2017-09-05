@@ -54,6 +54,7 @@
 
 /****Peter's Sample Library Includes****/
 #include <SI7021.h>
+#include <PID_Controller.h>
 
 /*******************************************************************************
  * Definitions
@@ -95,6 +96,10 @@ ftm_pwm_level_select_t pwmLevel = kFTM_HighTrue;
 SemaphoreHandle_t i2c_sem;
 
 uint16_t logi = 0;
+float temp_val;
+float humidity_val;
+
+bool temp_init = false;
 
 /*******************************************************************************
  * Definitions
@@ -102,6 +107,7 @@ uint16_t logi = 0;
 /* Task priorities. */
 //***Added by Peter***//
 #define SI7021_task_PRIORITY (configMAX_PRIORITIES - 1)
+#define PWM_task_PRIORITY (configMAX_PRIORITIES - 2)
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -132,7 +138,7 @@ int main(void)
         PRINTF("Failed to create SI7021 task");
     }
 
-    if (xTaskCreate(Motor_PWM, "MotorPWM_task", configMINIMAL_STACK_SIZE + 60, NULL, SI7021_task_PRIORITY, NULL) != pdPASS)
+    if (xTaskCreate(Motor_PWM, "MotorPWM_task", configMINIMAL_STACK_SIZE + 60, NULL, PWM_task_PRIORITY, NULL) != pdPASS)
     {
         PRINTF("Failed to create MotorPWM task");
     }
@@ -167,7 +173,8 @@ void init_I2C(void)
 void read_hum(void)
 {
 	logi++;
-	float humidity_val = getRH();
+	//float humidity_val = getRH();
+	humidity_val = getRH();
 	PRINTF("Log Entry: %d\r\n", logi);
 	PRINTF("Value of Room humidity is: %4.1f%%\r\n", humidity_val);
 }
@@ -175,7 +182,8 @@ void read_hum(void)
 //***Function to get Temperature***//
 void read_temp(void)
 {
-	float temp_val = getTemp();
+	//float temp_val = getTemp();
+	temp_val = getTemp();
 	PRINTF("Value of Room Temperature is: %4.1fC\r\n\r\n\r\n", temp_val);
 }
 
@@ -189,7 +197,8 @@ static void SI_7021(void *pvParameters)
 	{
 		read_hum();
 		read_temp();
-		vTaskDelay(10000);
+		vTaskDelay(5000);
+		temp_init = true;
 	}
 
 	vTaskSuspend(NULL);
@@ -207,33 +216,87 @@ void init_PWM()
     FTM_GetDefaultConfig(&ftmInfo);
 
     FTM_Init(BOARD_FTM_BASEADDR, &ftmInfo);
-    FTM_SetupPwm(BOARD_FTM_BASEADDR, &ftmParam, 1U, kFTM_EdgeAlignedPwm, 2000U, FTM_SOURCE_CLOCK);
+    FTM_SetupPwm(BOARD_FTM_BASEADDR, &ftmParam, 1U, kFTM_EdgeAlignedPwm, 10000U, FTM_SOURCE_CLOCK);
     FTM_StartTimer(BOARD_FTM_BASEADDR, kFTM_SystemClock);
 
+	FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 0);
+	FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
 }
 
 //***Task for Motor Control PWM***//
 static void Motor_PWM(void *pvParameters)
 {
-	bool x = false;
+	int pwm_out;
 
 	init_PWM();
+	set_tuning();
 
     while(1)
     {
-    	if(x==1)
+    	/*if(temp_val < 20.0)
     	{
-    		x=0;
+    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 0);
+    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+    		PRINTF("Current Fan Speed: OFF \r\n");
+    		//vTaskDelay(5000);
+    	}
+    	else if(temp_val >= 20.0 && temp_val < 21.0)
+    	{
+    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 30);
+    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+    		PRINTF("Current Fan Speed: 30%% \r\n");
+    		//vTaskDelay(5000);
+    	}
+    	else if(temp_val >= 21.0 && temp_val < 22.0)
+    	{
+    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 50);
+    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+    		PRINTF("Current Fan Speed: 50%% \r\n");
+    	}
+    	else if(temp_val >= 22.0 && temp_val < 23.0)
+    	{
     		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 70);
     		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-    		vTaskDelay(5000);
+    		PRINTF("Current Fan Speed: 70%% \r\n");
+    	}
+    	else if(temp_val >= 23.0 && temp_val < 25.0)
+    	{
+    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 90);
+    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+    		PRINTF("Current Fan Speed: 90%% \r\n");
     	}
     	else
     	{
-    		x=1;
-    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 10);
+    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 100);
     		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-    		vTaskDelay(5000);
+    		PRINTF("Current Fan Speed: 100%% \r\n");
     	}
+
+    	vTaskDelay(60000);*/
+    	if (temp_init == true)
+    	{
+    		PID_Compute(temp_val, target_temp, max_limit, min_limit, Direct);
+
+    		pwm_out = Output *15;
+
+    		if(pwm_out > 255)
+    		{
+    			pwm_out = 255;
+    		}
+
+    		else if(pwm_out < 0)
+    		{
+    			pwm_out = 0;
+    		}
+
+    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
+    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+
+    		PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
+    	}
+
+		vTaskDelay(7000);
+
     }
 }
+
