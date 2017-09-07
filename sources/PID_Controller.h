@@ -22,7 +22,7 @@ float target_temp = 24;
 uint64_t sampleTime = 1000;
 
 uint8_t max_limit = 20;
-int16_t min_limit = 0;
+int16_t min_limit = -20;
 
 bool Direct = Forward;
 

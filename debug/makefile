@@ -57,7 +57,7 @@ all: SI_7021.elf secondary-outputs
 SI_7021.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-common -ffreestanding -fno-builtin -Wall  -g -T ../settings/MK22FN512xxx12_flash.ld -Xlinker --gc-sections -Wl,-Map,"SI_7021.map" --specs=nano.specs -mapcs  -Xlinker -static  -Xlinker -z  -Xlinker muldefs -o "SI_7021.elf" -Xlinker --start-group $(OBJS) $(USER_OBJS) $(LIBS) -Xlinker --end-group
+	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-common -ffreestanding -fno-builtin -Wall  -g -T ../settings/MK22FN512xxx12_flash.ld -Xlinker --gc-sections -Wl,-Map,"SI_7021.map" --specs=nano.specs -u _printf_float -mapcs  -Xlinker -static  -Xlinker -z  -Xlinker muldefs -o "SI_7021.elf" -Xlinker --start-group $(OBJS) $(USER_OBJS) $(LIBS) -Xlinker --end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

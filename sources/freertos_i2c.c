@@ -55,6 +55,7 @@
 /****Peter's Sample Library Includes****/
 #include <SI7021.h>
 #include <PID_Controller.h>
+#include <IOT_Commands.h>
 
 /*******************************************************************************
  * Definitions
@@ -106,8 +107,9 @@ bool temp_init = false;
  ******************************************************************************/
 /* Task priorities. */
 //***Added by Peter***//
-#define SI7021_task_PRIORITY (configMAX_PRIORITIES - 1)
+#define SI7021_task_PRIORITY (configMAX_PRIORITIES - 2)
 #define PWM_task_PRIORITY (configMAX_PRIORITIES - 2)
+#define IOT_task_PRIORITY (configMAX_PRIORITIES -1)
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -115,6 +117,7 @@ bool temp_init = false;
 //***Added by Peter***//
 static void SI_7021(void *pvParameters);
 static void Motor_PWM(void *pvParameters);
+static void IOT_Task(void *pvParameters);
 void read_hum(void);
 void read_temp(void);
 
@@ -133,7 +136,7 @@ int main(void)
     //***Added by Peter***//
     PRINTF("This example prints the humidity and temperature readings from the Si7021 humidity and temperature sensor.\r\n");
 
-    if (xTaskCreate(SI_7021, "SI7021_task", configMINIMAL_STACK_SIZE + 60, NULL, SI7021_task_PRIORITY, NULL) != pdPASS)
+    if (xTaskCreate(SI_7021, "SI7021_task", configMINIMAL_STACK_SIZE + 90, NULL, SI7021_task_PRIORITY, NULL) != pdPASS)
     {
         PRINTF("Failed to create SI7021 task");
     }
@@ -141,6 +144,11 @@ int main(void)
     if (xTaskCreate(Motor_PWM, "MotorPWM_task", configMINIMAL_STACK_SIZE + 60, NULL, PWM_task_PRIORITY, NULL) != pdPASS)
     {
         PRINTF("Failed to create MotorPWM task");
+    }
+
+    if (xTaskCreate(IOT_Task, "IOT_task", configMINIMAL_STACK_SIZE + 60, NULL, IOT_task_PRIORITY, NULL) != pdPASS)
+    {
+        PRINTF("Failed to create IOT task");
     }
 
     vTaskStartScheduler();
@@ -197,6 +205,15 @@ static void SI_7021(void *pvParameters)
 	{
 		read_hum();
 		read_temp();
+
+    	strcpy(IOT_Comd, "Temp:");
+    	sprintf(IOT_Data, "%4.1f?", temp_val);
+
+		PRINTF("Command to be sent: %s\r\n", IOT_Comd);
+		PRINTF("Data to be sent: %s\r\n", IOT_Data);
+
+		IOT_Send(IOT_Data, IOT_Comd);
+
 		vTaskDelay(5000);
 		temp_init = true;
 	}
@@ -273,30 +290,119 @@ static void Motor_PWM(void *pvParameters)
     	}
 
     	vTaskDelay(60000);*/
-    	if (temp_init == true)
+    	if(fanControl == AUTO)
     	{
-    		PID_Compute(temp_val, target_temp, max_limit, min_limit, Direct);
 
-    		pwm_out = Output *15;
-
-    		if(pwm_out > 255)
+    		if (temp_init == true)
     		{
-    			pwm_out = 255;
+    			PID_Compute(temp_val, target_temp, max_limit, min_limit, Direct);
+
+    			pwm_out = Output *15;
+
+    			if(pwm_out > 255)
+    			{
+    				pwm_out = 255;
+    			}
+
+    			else if(pwm_out < 0)
+    			{
+    				pwm_out = 0;
+    			}
+
+    			FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
+    			FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+
+    	    	strcpy(IOT_Comd, "Fan Speed:");
+    	    	sprintf(IOT_Data, "%d?", pwm_out);
+
+    			PRINTF("Command to be sent: %s\r\n", IOT_Comd);
+    			PRINTF("Data to be sent: %s\r\n", IOT_Data);
+
+    			IOT_Send(IOT_Data, IOT_Comd);
+
+    			PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
     		}
-
-    		else if(pwm_out < 0)
-    		{
-    			pwm_out = 0;
-    		}
-
-    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
-    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-
-    		PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
     	}
+    	else if(fanControl == LOW)
+    	{
+    		pwm_out = 80;
+			FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
+			FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+
+	    	strcpy(IOT_Comd, "Fan Speed:");
+	    	strcpy(IOT_Data, "Low?");
+			IOT_Send(IOT_Data, IOT_Comd);
+
+			PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
+    	}
+    	else if(fanControl == MED)
+    	{
+    		pwm_out = 160;
+			FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
+			FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+
+	    	strcpy(IOT_Comd, "Fan Speed:");
+	    	strcpy(IOT_Data, "Medium?");
+			IOT_Send(IOT_Data, IOT_Comd);
+
+			PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
+    	}
+    	else if(fanControl == HIGH)
+    	{
+    		pwm_out = 255;
+			FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
+			FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+
+	    	strcpy(IOT_Comd, "Fan Speed:");
+	    	strcpy(IOT_Data, "High?");
+			IOT_Send(IOT_Data, IOT_Comd);
+
+			PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
+    	}
+    	else if(fanControl == OFF)
+    	{
+    		pwm_out = 0;
+			FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
+			FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+
+	    	strcpy(IOT_Comd, "Fan Speed:");
+	    	strcpy(IOT_Data, "Off?");
+			IOT_Send(IOT_Data, IOT_Comd);
+
+			PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
+    	}
+
+		PRINTF("Command to be sent: %s\r\n", IOT_Comd);
+		PRINTF("Data to be sent: %s\r\n", IOT_Data);
 
 		vTaskDelay(7000);
 
     }
 }
 
+/****IOT Tasks****/
+static void IOT_Task(void *pvParameters)
+{
+	//char IOT_Comd[10] = "Fan Speed:";
+	//char IOT_Data[10] = "Off?";
+	init_IOT();
+
+	while(1)
+	{
+		//PRINTF("Command to be sent: %s\r\n", IOT_Comd);
+		//PRINTF("Data to be sent: %s\r\n", IOT_Data);
+		memset(recv_buffer, 0, sizeof(recv_buffer));
+		memset(databuf, 0, sizeof(databuf));
+		//IOT_Send(IOT_Data, IOT_Comd);
+		//vTaskDelay(10);
+		while(strcmp(recv_buffer, "?")!=0)
+		{
+			IOT_Receive();
+			datacnt++;
+		}
+		datacnt = 0;
+		PRINTF("Data Received is: %s\r\n", databuf);
+		IOT_CommandParse(databuf);
+		vTaskDelay(1000);
+	}
+}

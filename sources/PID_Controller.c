@@ -69,7 +69,7 @@ unsigned int PID_Compute(float Input, float target_value, float up_limit, float 
 		}
 	}
 
-	PRINTF("Value of current value is: %4.2f%%\r\n", current_value);
+	PRINTF("Value of current value is: %4.2fC\r\n", current_value);
 	PRINTF("Value of error is: %4.2f\r\n", error);
 	PRINTF("Value of integral is: %4.2f\r\n", integral_value);
 	PRINTF("Value of derivative is: %4.2f\r\n", derivative_value);

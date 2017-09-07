@@ -42,6 +42,16 @@
 			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_ftm.h</location>
 		</link>
 		<link>
+			<name>drivers/fsl_uart_freertos.c</name>
+			<type>1</type>
+			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_uart_freertos.c</location>
+		</link>
+		<link>
+			<name>drivers/fsl_uart_freertos.h</name>
+			<type>1</type>
+			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_uart_freertos.h</location>
+		</link>
+		<link>
 			<name>sources/PID_Controller.c</name>
 			<type>1</type>
 			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/sources/PID_Controller.c</location>
