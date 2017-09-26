@@ -32,6 +32,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>drivers/fsl_adc16.c</name>
+			<type>1</type>
+			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_adc16.c</location>
+		</link>
+		<link>
+			<name>drivers/fsl_adc16.h</name>
+			<type>1</type>
+			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_adc16.h</location>
+		</link>
+		<link>
 			<name>drivers/fsl_ftm.c</name>
 			<type>1</type>
 			<location>C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_ftm.c</location>

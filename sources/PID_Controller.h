@@ -17,7 +17,7 @@ float Kp = 1;
 float Ki = 1;
 float Kd = 1;
 
-float target_temp = 24;
+float target_temp = 23;
 
 uint64_t sampleTime = 1000;
 

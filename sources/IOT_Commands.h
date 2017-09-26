@@ -39,9 +39,10 @@ unsigned int IOT_CommandParse(char *commandU);
 #define LOW 2
 #define AUTO 0
 #define OFF	1
+#define Test 5
 
 /****IOT_Variables****/
-uint8_t fanControl;
+uint8_t fanControl = 5;
 
 char IOT_Comd[10];
 char IOT_Data[6];

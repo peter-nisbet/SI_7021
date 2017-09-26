@@ -47,10 +47,13 @@ PinsProfile:
 #define PIN1_IDX                         1u   /*!< Pin number for pin 1 in a port */
 #define PIN2_IDX                         2u   /*!< Pin number for pin 2 in a port */
 #define PIN3_IDX                         3u   /*!< Pin number for pin 3 in a port */
+#define PIN4_IDX						 4u	  /*!< Pin number for pin 4 in a port */
+#define PIN5_IDX						 5u	  /*!< Pin number for pin 5 in a port */
 #define PIN6_IDX						 6U   /*!< Pin number for pin 6 in a port */
 #define PIN7_IDX						 7U	  /*!< Pin number for pin 7 in a port */
 #define PIN10_IDX                       10u   /*!< Pin number for pin 10 in a port */
 #define PIN11_IDX                       11u   /*!< Pin number for pin 11 in a port */
+#define PIN19_IDX                       19u   /*!< Pin number for pin 19 in a port */
 #define SOPT5_UART1TXSRC_UART_TX      0x00u   /*!< UART 1 transmit data source select: UART1_TX pin */
 #define SOPT5_UART0TXSRC_UART_TX      0x00u   /*!< UART 1 transmit data source select: UART1_TX pin */
 
@@ -127,6 +130,11 @@ void BOARD_InitPins(void) {
   };
   PORT_SetPinConfig(PORTC, PIN11_IDX, &portc11_pin56_config); /* PORTC11 (pin 56) is configured as I2C1_SDA */
   //***Added by Peter***//
+  PORT_SetPinMux(PORTB, PIN2_IDX, kPORT_PinDisabledOrAnalog);/* PORTB2 (pin 38) is configured as ADC*/
+  PORT_SetPinMux(PORTD, PIN5_IDX, kPORT_MuxAsGpio);			 /* PORTD5 (pin 62) is configured as GPIO*/
+  PORT_SetPinMux(PORTA, PIN1_IDX, kPORT_MuxAsGpio);			 /* PORTD7 (pin 64) is configured as GPIO*/
+  PORT_SetPinMux(PORTB, PIN19_IDX, kPORT_MuxAsGpio);			 /* PORTD6 (pin 63) is configured as GPIO*/
+  PORT_SetPinMux(PORTD, PIN4_IDX, kPORT_MuxAsGpio);			 /* PORTD4 (pin 61) is configured as GPIO*/
   PORT_SetPinMux(PORTA, PIN2_IDX, kPORT_MuxAlt3);            /* PORTA2 (pin 24) is configured as FTM0_CH7 */
   PORT_SetPinMux(PORTE, PIN0_IDX, kPORT_MuxAlt3);            /* PORTE0 (pin 1) is configured as UART1_TX */
   PORT_SetPinMux(PORTE, PIN1_IDX, kPORT_MuxAlt3);            /* PORTE1 (pin 2) is configured as UART1_RX */

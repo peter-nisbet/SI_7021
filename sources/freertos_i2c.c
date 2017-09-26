@@ -44,6 +44,7 @@
 #include "fsl_i2c.h"
 #include "fsl_i2c_freertos.h"
 #include "fsl_ftm.h"
+#include "fsl_adc16.h"
 
 #if ((defined FSL_FEATURE_SOC_INTMUX_COUNT) && (FSL_FEATURE_SOC_INTMUX_COUNT))
 #include "fsl_intmux.h"
@@ -82,6 +83,7 @@
 /* Get source clock for FTM driver */
 #define FTM_SOURCE_CLOCK CLOCK_GetFreq(kCLOCK_BusClk)
 
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -102,6 +104,10 @@ float humidity_val;
 
 bool temp_init = false;
 
+//ADC variables//
+volatile bool g_Adc16ConversionDoneFlag = false;
+volatile float g_Adc16ConversionValue = 0;
+
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
@@ -110,6 +116,8 @@ bool temp_init = false;
 #define SI7021_task_PRIORITY (configMAX_PRIORITIES - 2)
 #define PWM_task_PRIORITY (configMAX_PRIORITIES - 2)
 #define IOT_task_PRIORITY (configMAX_PRIORITIES -1)
+#define Doser_task_PRIORITY (configMAX_PRIORITIES -3)
+#define ADC_task_PRIORITY (configMAX_PRIORITIES -3)
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -118,8 +126,18 @@ bool temp_init = false;
 static void SI_7021(void *pvParameters);
 static void Motor_PWM(void *pvParameters);
 static void IOT_Task(void *pvParameters);
+static void Doser_Task(void *pvParameters);
+static void ADC_Task(void *pvParameters);
+
 void read_hum(void);
 void read_temp(void);
+
+unsigned int nutrient1(int a);
+unsigned int nutrient2(int b);
+unsigned int nutrient3(int c);
+unsigned int nutrient4(int d);
+
+unsigned int dosingSchedule(int a);
 
 /*******************************************************************************
  * Code
@@ -149,6 +167,16 @@ int main(void)
     if (xTaskCreate(IOT_Task, "IOT_task", configMINIMAL_STACK_SIZE + 60, NULL, IOT_task_PRIORITY, NULL) != pdPASS)
     {
         PRINTF("Failed to create IOT task");
+    }
+
+    if (xTaskCreate(Doser_Task, "Doser_task", configMINIMAL_STACK_SIZE + 60, NULL, Doser_task_PRIORITY, NULL) != pdPASS)
+    {
+        PRINTF("Failed to create Doser task");
+    }
+
+    if (xTaskCreate(ADC_Task, "ADC_task", configMINIMAL_STACK_SIZE + 60, NULL, ADC_task_PRIORITY, NULL) != pdPASS)
+    {
+        PRINTF("Failed to create ADC task");
     }
 
     vTaskStartScheduler();
@@ -250,46 +278,6 @@ static void Motor_PWM(void *pvParameters)
 
     while(1)
     {
-    	/*if(temp_val < 20.0)
-    	{
-    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 0);
-    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-    		PRINTF("Current Fan Speed: OFF \r\n");
-    		//vTaskDelay(5000);
-    	}
-    	else if(temp_val >= 20.0 && temp_val < 21.0)
-    	{
-    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 30);
-    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-    		PRINTF("Current Fan Speed: 30%% \r\n");
-    		//vTaskDelay(5000);
-    	}
-    	else if(temp_val >= 21.0 && temp_val < 22.0)
-    	{
-    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 50);
-    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-    		PRINTF("Current Fan Speed: 50%% \r\n");
-    	}
-    	else if(temp_val >= 22.0 && temp_val < 23.0)
-    	{
-    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 70);
-    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-    		PRINTF("Current Fan Speed: 70%% \r\n");
-    	}
-    	else if(temp_val >= 23.0 && temp_val < 25.0)
-    	{
-    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 90);
-    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-    		PRINTF("Current Fan Speed: 90%% \r\n");
-    	}
-    	else
-    	{
-    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, 100);
-    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
-    		PRINTF("Current Fan Speed: 100%% \r\n");
-    	}
-
-    	vTaskDelay(60000);*/
     	if(fanControl == AUTO)
     	{
 
@@ -371,6 +359,13 @@ static void Motor_PWM(void *pvParameters)
 
 			PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
     	}
+    	else if(fanControl == Test)
+    	{
+    		/*pwm_out = (g_Adc16ConversionValue/3929)*100;
+    		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
+    		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);*/
+    		PRINTF("Value of PWM Output is: %d\r\n", pwm_out);
+    	}
 
 		PRINTF("Command to be sent: %s\r\n", IOT_Comd);
 		PRINTF("Data to be sent: %s\r\n", IOT_Data);
@@ -405,4 +400,220 @@ static void IOT_Task(void *pvParameters)
 		IOT_CommandParse(databuf);
 		vTaskDelay(1000);
 	}
+}
+
+/****Dosing System Task****/
+
+static void Doser_Task(void *pvParameters)
+{
+	gpio_pin_config_t nutrientIO_config = {
+			kGPIO_DigitalOutput, 0,
+	};
+
+	GPIO_PinInit(GPIOD, 5, &nutrientIO_config);
+	GPIO_PinInit(GPIOA, 1, &nutrientIO_config);
+	GPIO_PinInit(GPIOB, 19, &nutrientIO_config);
+	GPIO_PinInit(GPIOD, 4, &nutrientIO_config);
+
+	GPIO_WritePinOutput(GPIOD, 5, 0);
+	GPIO_WritePinOutput(GPIOA, 1, 0);
+	GPIO_WritePinOutput(GPIOB, 19, 0);
+	GPIO_WritePinOutput(GPIOD, 4, 0);
+
+	while(1)
+	{
+		//nutrient1(9);//Note:3*30 seconds primed was 100mL(90 seconds)
+ 		dosingSchedule(0);
+		vTaskDelay(10000);
+	}
+}
+
+unsigned int nutrient1(int a)
+{
+	unsigned int timeCalc = 1000*a;
+
+	GPIO_WritePinOutput(GPIOD, 5, 1);
+	vTaskDelay(timeCalc);
+	GPIO_WritePinOutput(GPIOD, 5, 0);
+
+	return 0;
+}
+
+unsigned int nutrient2(int b)
+{
+	unsigned int timeCalc = 1000*b;
+
+	GPIO_WritePinOutput(GPIOA, 1, 1);
+	vTaskDelay(timeCalc);
+	GPIO_WritePinOutput(GPIOA, 1, 0);
+
+	return 0;
+}
+
+unsigned int nutrient3(int c)
+{
+	unsigned int timeCalc = 1000*c;
+
+	GPIO_WritePinOutput(GPIOB, 19, 1);
+	vTaskDelay(timeCalc);
+	GPIO_WritePinOutput(GPIOB, 19, 0);
+
+	return 0;
+}
+
+unsigned int nutrient4(int d)
+{
+	unsigned int timeCalc = 1000*d;
+
+	GPIO_WritePinOutput(GPIOD, 4, 1);
+	vTaskDelay(timeCalc);
+	GPIO_WritePinOutput(GPIOD, 4, 0);
+
+	return 0;
+}
+
+unsigned int dosingSchedule(int a)
+{
+	if(a == 0)	//****Prop****//
+	{
+		nutrient1(9);
+		nutrient2(27);
+		nutrient4(27);
+	}
+	else if(a == 1)  //****Veg 1****//
+	{
+		nutrient1(9);
+		nutrient2(54);
+		nutrient3(54);
+	}
+	else if(a == 2)	//****Veg 2****//
+	{
+		nutrient1(9);
+		nutrient2(81);
+		nutrient3(81);
+	}
+	else if(a == 3)	//****Veg 3****//
+	{
+		nutrient1(9);
+		nutrient2(108);
+		nutrient3(108);
+	}
+	else if(a == 4)	//****Trans****//
+	{
+		nutrient1(9);
+		nutrient2(108);
+		nutrient3(54);
+		nutrient4(54);
+	}
+	else if(a == 5)	//****Flowering 1****//
+	{
+		nutrient1(9);
+		nutrient2(99);
+		nutrient4(99);
+	}
+	else if(a == 6)	//****Flowering 2****//
+	{
+		nutrient1(9);
+		nutrient2(99);
+		nutrient4(99);
+	}
+	else if(a == 7)	//****Flowering 3****//
+	{
+		nutrient1(9);
+		nutrient2(99);
+		nutrient4(99);
+	}
+	else if(a == 8)	//****Flowering 4****//
+	{
+		nutrient1(9);
+		nutrient2(108);
+		nutrient4(108);
+	}
+	else if(a == 9) //****Flowering 5****//
+	{
+		nutrient1(9);
+		nutrient2(108);
+		nutrient4(108);
+	}
+	else if(a == 10)	//****Flowering 6****//
+	{
+		nutrient1(9);
+		nutrient2(108);
+		nutrient4(108);
+	}
+	else if(a == 11)	//****Flowering 7****//
+	{
+		nutrient1(9);
+		nutrient2(99);
+		nutrient4(99);
+	}
+	else if(a == 12)	//****Flowering 8****//
+	{
+		nutrient1(9);
+		nutrient2(54);
+		nutrient4(54);
+	}
+	else if(a == 13)	//****Flush****//
+	{
+		nutrient1(45);
+	}
+
+	return 0;
+}
+
+/*****ADC Task*****/
+
+static void ADC_Task(void *pvParameters)
+{
+	int pwm_out;
+	adc16_config_t adc16ConfigStruct;
+	adc16_channel_config_t adc16ChannelConfigStruct;
+
+	EnableIRQ(ADC0_IRQn);
+
+	ADC16_GetDefaultConfig(&adc16ConfigStruct);
+
+	ADC16_Init(ADC0, &adc16ConfigStruct);
+
+	ADC16_EnableHardwareTrigger(ADC0, false);
+
+    if (kStatus_Success == ADC16_DoAutoCalibration(ADC0))
+    {
+        PRINTF("ADC16_DoAutoCalibration() Done.\r\n");
+    }
+    else
+    {
+        PRINTF("ADC16_DoAutoCalibration() Failed.\r\n");
+    }
+
+	adc16ChannelConfigStruct.channelNumber = 12;
+	adc16ChannelConfigStruct.enableInterruptOnConversionCompleted = true;
+	adc16ChannelConfigStruct.enableDifferentialConversion = false;
+
+	while(1)
+	{
+		g_Adc16ConversionDoneFlag = false;
+		ADC16_SetChannelConfig(ADC0, 0, &adc16ChannelConfigStruct);
+
+		while(!g_Adc16ConversionDoneFlag)
+		{
+			vTaskDelay(1);
+		}
+
+		pwm_out = (g_Adc16ConversionValue/3929)*100;
+		FTM_UpdatePwmDutycycle(BOARD_FTM_BASEADDR, BOARD_FTM_CHANNEL, kFTM_EdgeAlignedPwm, pwm_out);
+		FTM_SetSoftwareTrigger(BOARD_FTM_BASEADDR, true);
+
+		PRINTF("ADC Value: %4.2f\r\n", g_Adc16ConversionValue);
+		//vTaskDelay(10000);
+		vTaskDelay(1000);
+	}
+
+}
+
+void ADC0_IRQHandler(void)
+{
+	g_Adc16ConversionDoneFlag = true;
+
+	g_Adc16ConversionValue = ADC16_GetChannelConversionValue(ADC0, 0);
 }

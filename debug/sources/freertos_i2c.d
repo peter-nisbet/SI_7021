@@ -18,8 +18,8 @@ sources/freertos_i2c.o: ../sources/freertos_i2c.c \
  ../drivers/fsl_common.h ../drivers/fsl_gpio.h \
  ../utilities/fsl_debug_console.h ../drivers/fsl_i2c.h \
  ../drivers/fsl_i2c_freertos.h ../freertos/Source/include/portable.h \
- ../drivers/fsl_i2c.h ../drivers/fsl_ftm.h ../sources/pin_mux.h \
- ../sources/SI7021.h ../sources/PID_Controller.h \
+ ../drivers/fsl_i2c.h ../drivers/fsl_ftm.h ../drivers/fsl_adc16.h \
+ ../sources/pin_mux.h ../sources/SI7021.h ../sources/PID_Controller.h \
  ../sources/IOT_Commands.h ../drivers/fsl_uart_freertos.h \
  ../drivers/fsl_uart.h ../freertos/Source/include/event_groups.h \
  ../freertos/Source/include/timers.h
@@ -93,6 +93,8 @@ sources/freertos_i2c.o: ../sources/freertos_i2c.c \
 ../drivers/fsl_i2c.h:
 
 ../drivers/fsl_ftm.h:
+
+../drivers/fsl_adc16.h:
 
 ../sources/pin_mux.h:
 

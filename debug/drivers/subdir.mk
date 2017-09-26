@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../drivers/fsl_adc16.c \
 ../drivers/fsl_clock.c \
 ../drivers/fsl_common.c \
 ../drivers/fsl_flash.c \
@@ -17,6 +18,7 @@ C_SRCS += \
 ../drivers/fsl_uart_freertos.c 
 
 OBJS += \
+./drivers/fsl_adc16.o \
 ./drivers/fsl_clock.o \
 ./drivers/fsl_common.o \
 ./drivers/fsl_flash.o \
@@ -30,6 +32,7 @@ OBJS += \
 ./drivers/fsl_uart_freertos.o 
 
 C_DEPS += \
+./drivers/fsl_adc16.d \
 ./drivers/fsl_clock.d \
 ./drivers/fsl_common.d \
 ./drivers/fsl_flash.d \
@@ -44,6 +47,13 @@ C_DEPS += \
 
 
 # Each subdirectory must supply rules for building sources it contributes
+drivers/fsl_adc16.o: C:/Users/pnisbet/Documents/Freescale_Projects/SI_7021/drivers/fsl_adc16.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: Cross ARM C Compiler'
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fno-common -ffreestanding -fno-builtin -Wall  -g -DDEBUG -DPRINTF_ADVANCED_ENABLE=1 -DCPU_MK22FN512VLH12 -DFSL_RTOS_FREE_RTOS -DFRDM_K22F -DFREEDOM -I../CMSIS/Include -I../devices -I../drivers -I../freertos/Source/include -I../freertos/Source/portable/GCC/ARM_CM4F -I../freertos/Source -I../sources -I../utilities -std=gnu99 -mapcs -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -c -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
 drivers/%.o: ../drivers/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross ARM C Compiler'
